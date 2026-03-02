@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/entity-base.json",
+  "title": "Logistics Entity Base",
+  "description": "Base schema for all logistics entities",
+  "definitions": {
+    "position": {
+      "type": "object",
+      "description": "3D position in meters",
+      "properties": {
+        "x": {
+          "type": "number",
+          "description": "X coordinate in meters"
+        },
+        "y": {
+          "type": "number",
+          "description": "Y coordinate in meters"
+        },
+        "z": {
+          "type": "number",
+          "description": "Z coordinate in meters"
+        }
+      },
+      "required": ["x", "y", "z"]
+    },
+    "entity": {
+      "type": "object",
+      "description": "Base entity definition",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique entity identifier"
+        },
+        "type": {
+          "type": "string",
+          "description": "Entity type (e.g., MACHINE, STOCKER, OHT_VEHICLE, AGV_VEHICLE, etc.)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Entity display name"
+        },
+        "position": {
+          "$ref": "#/definitions/position"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the entity is enabled"
+        },
+        "properties": {
+          "type": "object",
+          "description": "Additional entity-specific properties"
+        }
+      },
+      "required": ["id", "type", "position"]
+    },
+    "transport-capable": {
+      "type": "object",
+      "description": "Base for entities that can participate in transport (devices that handle materials)",
+      "properties": {
+        "supportedTransportTypes": {
+          "type": "array",
+          "description": "Transport types supported by this entity (e.g., OHT, AGV, HUMAN). Required for devices that can handle materials.",
+          "items": {
+            "type": "string",
+            "enum": ["OHT", "AGV", "HUMAN", "CONVEYOR"]
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["supportedTransportTypes"]
+    }
+  }
+}

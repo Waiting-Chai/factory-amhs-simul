@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <!-- 配置本地仓库 -->
+    <!-- <localRepository>/home/lib/apache-maven-3.9.9/repository</localRepository> -->
+
+    <!-- 通过仓库的ID为每个仓库指定凭证 -->
+    <servers>
+        <server>
+            <id>maven-public</id>
+            <username>admin</username>
+            <password>admin123</password>
+        </server>
+        <server>
+            <id>maven-snapshots</id>
+            <username>admin</username>
+            <password>admin123</password>
+        </server>
+        <server>
+            <id>maven-releases</id>
+            <username>admin</username>
+            <password>admin123</password>
+        </server>
+    </servers>
+
+    <!-- 配置镜像源 -->
+    <mirrors>
+        <!-- 阿里云镜像 -->
+        <mirror>
+            <id>aliyun-central</id>
+            <mirrorOf>central</mirrorOf>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </mirror>
+        <!-- 阿里云快照仓库 -->
+        <mirror>
+            <id>aliyun-snapshots</id>
+            <mirrorOf>snapshots</mirrorOf>
+            <url>http://maven.aliyun.com/nexus/content/repositories/snapshots/</url>
+        </mirror>
+        <mirror>
+            <id>central</id>
+            <mirrorOf>external:http://repo.maven.apache.org/maven2</mirrorOf>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </mirror>
+        <mirror>
+            <id>maven-public</id>
+            <name>maven-public</name>
+            <mirrorOf>*</mirrorOf>
+            <url>http://10.100.101.174:8002/repository/maven-public/</url>
+        </mirror>
+        <mirror>
+            <id>maven-snapshots</id>
+            <name>maven-snapshots</name>
+            <mirrorOf>*</mirrorOf>
+            <url>http://10.100.101.174:8002/repository/maven-snapshots/</url>
+        </mirror>
+        <mirror>
+            <id>maven-releases</id>
+            <name>maven-releases</name>
+            <mirrorOf>*</mirrorOf>
+            <url>http://10.100.101.174:8002/repository/maven-releases/</url>
+        </mirror>
+    </mirrors>
+
+    <!-- 配置激活的Profile -->
+    <profiles>
+        <profile>
+            <id>jdk-21</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <jdk>21</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.source>21</maven.compiler.source>
+                <maven.compiler.target>21</maven.compiler.target>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>nexus</id>
+            <!-- 远程仓库列表 -->
+            <repositories>
+                <repository>
+                    <id>nexus-maven-public</id>
+                    <name>Nexus Maven Public</name>
+                    <url>http://10.100.101.174:8002/repository/maven-public/</url>
+                    <layout>default</layout>
+                    <!-- 表示可以从这个仓库下载releases版本的构件-->
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                    <!-- 表示可以从这个仓库下载snapshot版本的构件 -->
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <!-- 插件仓库列表 -->
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>java</id>
+                    <name>nexus-maven-public</name>
+                    <url>http://10.100.101.174:8002/repository/maven-public/</url>
+                    <layout>default</layout>
+                    <!-- 表示可以从这个仓库下载releases版本的构件-->
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                    <!-- 表示可以从这个仓库下载snapshot版本的构件 -->
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <jdk>21</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.source>21</maven.compiler.source>
+                <maven.compiler.target>21</maven.compiler.target>
+            </properties>
+        </profile>
+    </profiles>
+
+    <!-- 激活Profile -->
+    <activeProfiles>
+        <activeProfile>nexus</activeProfile>
+    </activeProfiles>
+
+</settings>

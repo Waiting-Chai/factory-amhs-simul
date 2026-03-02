@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/path.json",
+  "title": "OHT Track Path Definition (Curved Path)",
+  "description": "Curved path definition for OHT_TRACK with points and segments (REQ-TC-003, REQ-TC-012). This schema ONLY applies to paths using points+segments structure (OHT_TRACK, CUSTOM_PATH). AGV_NETWORK uses a separate nodes+edges schema (not defined in this file).",
+  "definitions": {
+    "pathPoint": {
+      "type": "object",
+      "description": "A point in 3D space that can be referenced by path segments. All coordinates in meters (REQ-TC-004).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique point identifier for reference by segments"
+        },
+        "x": {
+          "type": "number",
+          "description": "X coordinate in meters"
+        },
+        "y": {
+          "type": "number",
+          "description": "Y coordinate in meters"
+        },
+        "z": {
+          "type": "number",
+          "description": "Z coordinate in meters"
+        }
+      },
+      "required": ["id", "x", "y", "z"]
+    },
+    "bezierControlPoint": {
+      "type": "object",
+      "description": "Bezier control point (c1 or c2). These are GEOMETRIC control points only, NOT traffic ControlPoints (REQ-TC-003). Coordinates are absolute in meters.",
+      "properties": {
+        "x": {
+          "type": "number",
+          "description": "X coordinate in meters (absolute position)"
+        },
+        "y": {
+          "type": "number",
+          "description": "Y coordinate in meters (absolute position)"
+        },
+        "z": {
+          "type": "number",
+          "description": "Z coordinate in meters (absolute position)"
+        }
+      },
+      "required": ["x", "y", "z"]
+    },
+    "linearSegment": {
+      "type": "object",
+      "description": "LINEAR segment: straight line between two points (REQ-TC-003)",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique segment identifier"
+        },
+        "type": {
+          "const": "LINEAR",
+          "description": "Segment type must be LINEAR"
+        },
+        "from": {
+          "type": "string",
+          "description": "Start point ID (must reference a point in the points array)"
+        },
+        "to": {
+          "type": "string",
+          "description": "End point ID (must reference a point in the points array)"
+        }
+      },
+      "required": ["id", "type", "from", "to"],
+      "additionalProperties": false
+    },
+    "bezierSegment": {
+      "type": "object",
+      "description": "BEZIER segment: cubic Bezier curve with two control points (REQ-TC-003). Control points are absolute coordinates in meters.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique segment identifier"
+        },
+        "type": {
+          "const": "BEZIER",
+          "description": "Segment type must be BEZIER"
+        },
+        "from": {
+          "type": "string",
+          "description": "Start point ID (must reference a point in the points array)"
+        },
+        "to": {
+          "type": "string",
+          "description": "End point ID (must reference a point in the points array)"
+        },
+        "c1": {
+          "description": "Control point 1 (absolute coordinates in meters). This is a GEOMETRIC control point for curve shape, NOT a traffic ControlPoint.",
+          "$ref": "#/definitions/bezierControlPoint"
+        },
+        "c2": {
+          "description": "Control point 2 (absolute coordinates in meters). This is a GEOMETRIC control point for curve shape, NOT a traffic ControlPoint.",
+          "$ref": "#/definitions/bezierControlPoint"
+        }
+      },
+      "required": ["id", "type", "from", "to", "c1", "c2"],
+      "additionalProperties": false
+    },
+    "segment": {
+      "description": "Path segment (either LINEAR or BEZIER)",
+      "oneOf": [
+        { "$ref": "#/definitions/linearSegment" },
+        { "$ref": "#/definitions/bezierSegment" }
+      ]
+    },
+    "controlPoint": {
+      "type": "object",
+      "description": "Traffic control point for capacity/priority management (REQ-TC-005). This is distinct from Bezier geometric control points.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique control point identifier"
+        },
+        "at": {
+          "type": "string",
+          "description": "Point ID where this control point is located (must reference a point in the points array)"
+        },
+        "capacity": {
+          "type": "integer",
+          "description": "Maximum number of vehicles that can occupy this control point simultaneously",
+          "minimum": 1,
+          "default": 1
+        },
+        "priority": {
+          "type": "integer",
+          "description": "Priority level for this control point (1-10, where 10 is highest)",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5
+        }
+      },
+      "required": ["id", "at"]
+    },
+    "path": {
+      "type": "object",
+      "description": "OHT track path definition with points and segments (REQ-TC-003, REQ-TC-012). For AGV_NETWORK (nodes+edges structure), a separate schema is required (not defined in this file).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique path identifier"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["OHT_TRACK", "CUSTOM_PATH"],
+          "description": "Path type. OHT_TRACK for OHT tracks with curved paths. CUSTOM_PATH for custom curved paths. NOTE: AGV_NETWORK is NOT supported here (use nodes+edges structure)."
+        },
+        "points": {
+          "type": "array",
+          "description": "Collection of path points that can be referenced by segments. All coordinates in meters (REQ-TC-004).",
+          "items": {
+            "$ref": "#/definitions/pathPoint"
+          },
+          "minItems": 2
+        },
+        "segments": {
+          "type": "array",
+          "description": "Ordered list of path segments (LINEAR or BEZIER). Each segment's from/to must reference point IDs in the points array. Segments must be continuous (previous segment's 'to' = current segment's 'from').",
+          "items": {
+            "$ref": "#/definitions/segment"
+          },
+          "minItems": 1
+        },
+        "controlPoints": {
+          "type": "array",
+          "description": "Optional traffic control points for capacity/priority management (REQ-TC-005). These are distinct from Bezier geometric control points (c1, c2 in BEZIER segments).",
+          "items": {
+            "$ref": "#/definitions/controlPoint"
+          }
+        }
+      },
+      "required": ["id", "type", "points", "segments"]
+    }
+  }
+}

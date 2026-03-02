@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: sim-logistics-web
+  profiles:
+    active: local
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      timeout: 5s
+  flyway:
+    enabled: false
+    validate-on-migrate: false
+    clean-disabled: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  mvc:
+    static-path-pattern: /static/**  # Only serve static resources from /static/, exclude API paths
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.semi.simlogistics.web.infrastructure.persistence
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+
+sim:
+  redisson:
+    address: redis://127.0.0.1:6379
+    database: 0
+    lazy-initialization: true
+  minio:
+    endpoint: http://127.0.0.1:9000
+    access-key: minioadmin
+    secret-key: minioadmin
+    default-bucket: sim-artifacts
+
+logging:
+  level:
+    org.flywaydb: INFO
+    org.springframework.boot.autoconfigure.flyway: DEBUG

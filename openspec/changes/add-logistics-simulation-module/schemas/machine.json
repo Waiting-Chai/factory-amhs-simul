@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/machine.json",
+  "title": "Machine Entity",
+  "description": "Processing machine entity (e.g., lithography, etching equipment)",
+  "allOf": [
+    {
+      "$ref": "entity-base.json#/definitions/entity"
+    },
+    {
+      "$ref": "entity-base.json#/definitions/transport-capable"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "MACHINE"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "capacity": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of processing slots"
+            },
+            "processingTime": {
+              "type": "object",
+              "description": "Default processing time distribution",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["NORMAL", "EXPONENTIAL", "TRIANGULAR", "FIXED"]
+                },
+                "mean": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "std": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": ["type", "mean"]
+            },
+            "setupTime": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0,
+              "description": "Setup time in seconds"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/process-flow.json",
+  "title": "ProcessFlow Definition",
+  "description": "Process flow definition with multi-candidate device support",
+  "type": "object",
+  "required": ["id", "name", "version", "steps"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique process flow ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "Process flow name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version (e.g., 1.0.0)"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "properties": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "defaultOutputStrategy": {
+      "type": "object",
+      "description": "Default output strategy for all steps",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["DIRECT_TO_NEXT", "INTERMEDIATE_STORAGE", "BUFFER_ZONE", "CONDITIONAL", "DYNAMIC_SELECT"]
+        },
+        "singleDestination": {
+          "type": "string",
+          "description": "For DIRECT_TO_NEXT: target step ID or entity ID"
+        },
+        "storageLocation": {
+          "type": "string",
+          "description": "For INTERMEDIATE_STORAGE/BUFFER_ZONE: storage entity ID"
+        },
+        "candidateList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "For DYNAMIC_SELECT: list of candidate entity IDs"
+        },
+        "conditionalRoutes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "type": "object"
+              },
+              "destination": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "For CONDITIONAL: list of conditional routes"
+        }
+      }
+    },
+    "defaultTransportSelector": {
+      "type": "object",
+      "description": "Default transport selector for all steps (v2.0)",
+      "properties": {
+        "policy": {
+          "type": "string",
+          "enum": ["DISTANCE_FIRST", "TIME_FIRST", "WIP_FIRST", "PRIORITY_BASED", "HYBRID"],
+          "default": "HYBRID",
+          "description": "Selection policy: DISTANCE_FIRST/TIME_FIRST/WIP_FIRST/PRIORITY_BASED (single-metric priority), HYBRID (multi-factor weights: distance/time/wip)"
+        },
+        "allowedTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["OHT", "AGV", "HUMAN", "CONVEYOR"]
+          },
+          "description": "Allowed transport types"
+        },
+        "distanceWeight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.4,
+          "description": "Distance factor weight (from system_config: dispatch.selector.weight.distance)"
+        },
+        "timeWeight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.4,
+          "description": "Time factor weight (from system_config: dispatch.selector.weight.time)"
+        },
+        "wipWeight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.2,
+          "description": "WIP factor weight (from system_config: dispatch.selector.weight.wip)"
+        },
+        "normalization": {
+          "type": "string",
+          "enum": ["min-max", "z-score"],
+          "default": "min-max",
+          "description": "Normalization method (from system_config: dispatch.selector.normalization)"
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Process steps (ordered by sequence number)",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "sequence", "targetEntityIds"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "targetEntityIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            },
+            "description": "Candidate device IDs for this step (multi-candidate support)"
+          },
+          "requiredTransportTypes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": ["OHT", "AGV", "HUMAN", "CONVEYOR"]
+            },
+            "description": "Required transport types for this step (must intersect with device supportedTransportTypes)"
+          },
+          "processingTime": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["NORMAL", "EXPONENTIAL", "TRIANGULAR", "FIXED"]
+              },
+              "mean": {
+                "type": "number",
+                "minimum": 0
+              },
+              "std": {
+                "type": "number",
+                "minimum": 0
+              },
+              "min": {
+                "type": "number",
+                "minimum": 0
+              },
+              "max": {
+                "type": "number",
+                "minimum": 0
+              },
+              "mode": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": ["type", "mean"]
+          },
+          "wipLimit": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "WIP limit (0 = unlimited)"
+          },
+          "outputStrategy": {
+            "type": "object",
+            "description": "Override default output strategy"
+          },
+          "transportSelector": {
+            "type": "object",
+            "description": "Override default transport selector"
+          },
+          "predecessorIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Predecessor step IDs"
+          },
+          "successorId": {
+            "type": "string",
+            "description": "Successor step ID"
+          }
+        }
+      }
+    }
+  }
+}

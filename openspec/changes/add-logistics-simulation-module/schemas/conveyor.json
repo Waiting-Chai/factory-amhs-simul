@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/conveyor.json",
+  "title": "Conveyor Entity",
+  "description": "Conveyor system for material transport",
+  "allOf": [
+    {
+      "$ref": "entity-base.json#/definitions/entity"
+    },
+    {
+      "$ref": "entity-base.json#/definitions/transport-capable"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CONVEYOR"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "speed": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Conveyor speed in m/s"
+            },
+            "accumulation": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether accumulation is enabled"
+            },
+            "segmentCount": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of conveyor segments"
+            },
+            "length": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Total conveyor length in meters"
+            }
+          },
+          "required": ["speed", "length"]
+        }
+      }
+    }
+  ]
+}

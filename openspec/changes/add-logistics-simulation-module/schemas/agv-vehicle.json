@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/agv-vehicle.json",
+  "title": "AGV Vehicle Entity",
+  "description": "Automated Guided Vehicle for floor-level transport",
+  "allOf": [
+    {
+      "$ref": "entity-base.json#/definitions/entity"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "AGV_VEHICLE"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "networkId": {
+              "type": "string",
+              "description": "Associated AGV network ID"
+            },
+            "agvType": {
+              "type": "string",
+              "enum": ["FORKLIFT", "TUGGER", "UNIT_LOAD", "CUSTOM"],
+              "description": "AGV vehicle type"
+            },
+            "maxLoad": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Maximum load capacity in kg"
+            },
+            "currentLoad": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0,
+              "description": "Current load in kg"
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Travel speed in m/s"
+            },
+            "batteryCapacity": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Battery capacity in kWh"
+            },
+            "batteryLevel": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 1,
+              "description": "Current battery level (0-1)"
+            },
+            "chargingRate": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Charging rate in kW"
+            },
+            "chargeThreshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.2,
+              "description": "Battery level threshold for charging (0-1)"
+            },
+            "state": {
+              "type": "string",
+              "enum": ["IDLE", "MOVING", "LOADING", "UNLOADING", "CHARGING", "BLOCKED", "ERROR"],
+              "default": "IDLE"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Current path (list of node IDs)"
+            }
+          },
+          "required": ["networkId", "agvType", "maxLoad", "speed"]
+        }
+      }
+    }
+  ]
+}
